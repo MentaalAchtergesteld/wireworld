@@ -20,12 +20,15 @@ let mouseDown = false;
 
 let grid = [];
 let gridSquareSize = 16;
+let squareSize = gridSquareSize * 0.75;
 
 let gridXAmount = Math.floor(canvas.width / gridSquareSize);
 let gridYAmount = Math.floor(canvas.height / gridSquareSize);
 
-let gridXOffset = (canvas.width - gridXAmount * gridSquareSize) / 2;
-let gridYOffset = (canvas.height - gridSquareSize * gridYAmount) / 2;
+let gridXOffset =
+  (canvas.width - gridXAmount * gridSquareSize) / 2 + gridSquareSize * 0.125;
+let gridYOffset =
+  (canvas.height - gridSquareSize * gridYAmount) / 2 + gridSquareSize * 0.125;
 
 for (let i = 0; i < gridXAmount; i++) {
   grid.push([]);
@@ -98,18 +101,10 @@ function drawBrush() {
   canvas.setStrokeWeight(4);
 
   let gridPosX =
-    Math.floor(mouseX / gridSquareSize) * gridSquareSize +
-    gridXOffset +
-    gridSquareSize / 2;
+    Math.floor(mouseX / gridSquareSize) * gridSquareSize + gridXOffset;
   let gridPosY =
-    Math.floor(mouseY / gridSquareSize) * gridSquareSize +
-    gridYOffset +
-    gridSquareSize / 2;
-  canvas.ellipse(
-    gridPosX + gridXOffset,
-    gridPosY + gridXOffset,
-    gridSquareSize / 2
-  );
+    Math.floor(mouseY / gridSquareSize) * gridSquareSize + gridYOffset;
+  canvas.rectangle(gridPosX, gridPosY, squareSize, squareSize);
 }
 
 function sleep(timeInMillis) {
@@ -118,15 +113,6 @@ function sleep(timeInMillis) {
 
 function checkNeighbours(grid, i, j, value) {
   let neighbours = 0;
-  // neighbours.push(grid[i - 1][j - 1]);
-  // neighbours.push(grid[i][j - 1]);
-  // neighbours.push(grid[i + 1][j - 1]);
-  // neighbours.push(grid[i - 1][j]);
-  // neighbours.push(grid[i][j]);
-  // neighbours.push(grid[i + 1][j]);
-  // neighbours.push(grid[i - 1][j + 1]);
-  // neighbours.push(grid[i][j + 1]);
-  // neighbours.push(grid[i + 1][j + 1]);
   for (let x = -1; x <= 1; x++) {
     for (let y = -1; y <= 1; y++) {
       if (x == 0 && y == 0) continue;
@@ -146,7 +132,7 @@ function checkNeighbours(grid, i, j, value) {
   return neighbours;
 }
 
-function handleAlgorithm() {
+async function handleAlgorithm() {
   let altGrid = structuredClone(grid);
   for (let i = 0; i < altGrid.length; i++) {
     for (let j = 0; j < altGrid[i].length; j++) {
@@ -164,6 +150,8 @@ function handleAlgorithm() {
       }
     }
   }
+
+  await sleep(100);
 }
 
 function handleBrush() {
@@ -176,7 +164,7 @@ function handleBrush() {
   }
 }
 
-function update() {
+async function update() {
   canvas.setBackground(Color.GS(32));
 
   canvas.setFill(Color.GS(192));
@@ -198,14 +186,17 @@ function update() {
           break;
       }
 
-      let x = i * gridSquareSize + gridXOffset + gridSquareSize / 2;
-      let y = j * gridSquareSize + gridYOffset + gridSquareSize / 2;
-      canvas.ellipse(x, y, gridSquareSize / 2);
+      // let x = i * gridSquareSize + gridXOffset + gridSquareSize / 2;
+      // let y = j * gridSquareSize + gridYOffset + gridSquareSize / 2;
+
+      let x = i * gridSquareSize + gridXOffset;
+      let y = j * gridSquareSize + gridYOffset;
+      canvas.rectangle(x, y, squareSize, squareSize);
     }
   }
 
   if (playing) {
-    handleAlgorithm();
+    await handleAlgorithm();
   } else {
     handleBrush();
   }
